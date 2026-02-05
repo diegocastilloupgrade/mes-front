@@ -1,0 +1,265 @@
+<!-- DELETE MODE -->
+<div *ngIf="data.mode === 'delete'">
+  <h2 mat-dialog-title>Eliminar Máquina</h2>
+  <mat-dialog-content>
+    <p>¿Estás seguro de que deseas eliminar la máquina?</p>
+    <p><strong>{{ data.maquina?.nombre }}</strong> ({{ data.maquina?.codigo }})</p>
+    <p class="warning">Esta acción no se puede deshacer.</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancelar</button>
+    <button mat-raised-button color="warn" (click)="confirmDelete()">
+      Eliminar
+    </button>
+  </mat-dialog-actions>
+</div>
+
+<!-- CREATE/EDIT MODE -->
+<div *ngIf="data.mode !== 'delete'">
+  <h2 mat-dialog-title>
+    {{ data.mode === 'create' ? 'Nueva Máquina' : 'Editar Máquina' }}
+  </h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="form">
+      
+      <!-- DATOS BÁSICOS -->
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>info</mat-icon>
+            Datos Básicos
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="form-grid">
+          <mat-form-field appearance="fill">
+            <mat-label>Código</mat-label>
+            <input matInput formControlName="codigo" placeholder="TOR-001">
+            <mat-error *ngIf="form.get('codigo')?.hasError('required')">
+              Campo requerido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" placeholder="Torno CNC T-200">
+            <mat-error *ngIf="form.get('nombre')?.hasError('required')">
+              Campo requerido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Tipo</mat-label>
+            <mat-select formControlName="tipo">
+              <mat-option value="torno">Torno</mat-option>
+              <mat-option value="fresadora">Fresadora</mat-option>
+              <mat-option value="prensa">Prensa</mat-option>
+              <mat-option value="soldadora">Soldadora</mat-option>
+              <mat-option value="otro">Otro</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Marca</mat-label>
+            <input matInput formControlName="marca" placeholder="Haas">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Modelo</mat-label>
+            <input matInput formControlName="modelo" placeholder="ST-20">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="estado">
+              <mat-option value="operativa">Operativa</mat-option>
+              <mat-option value="mantenimiento">Mantenimiento</mat-option>
+              <mat-option value="averiada">Averiada</mat-option>
+              <mat-option value="inactiva">Inactiva</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Área</mat-label>
+            <mat-select formControlName="area">
+              <mat-option value="extrusion">Extrusión</mat-option>
+              <mat-option value="confeccion_acabado">Confección y Acabado</mat-option>
+              <mat-option value="taller_moldes">Taller de Moldes</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Ubicación Detalle</mat-label>
+            <input matInput formControlName="ubicacionDetalle" placeholder="Sector 1">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Fecha Instalación</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="fechaInstalacion">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Horas Funcionamiento</mat-label>
+            <input matInput type="number" formControlName="horasFuncionamiento" placeholder="0">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill">
+            <mat-label>Estimación Horas/Mes</mat-label>
+            <input matInput type="number" formControlName="estimacionHorasMes" placeholder="320">
+            <mat-hint>Para planificación preventiva</mat-hint>
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- MANTENIMIENTOS -->
+      <mat-expansion-panel class="mantenimientos-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>build_circle</mat-icon>
+            Tipos de Mantenimiento ({{ mantenimientos.length }})
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <div class="mantenimientos-container">
+          <p class="info-text">
+            Configura los tipos de mantenimiento asignados a esta máquina
+          </p>
+
+          <button mat-stroked-button type="button" 
+                  (click)="addMantenimiento()" 
+                  class="add-mant-btn">
+            <mat-icon>add</mat-icon>
+            Añadir Tipo Mantenimiento
+          </button>
+
+          <div formArrayName="mantenimientos" class="mantenimientos-list">
+            <mat-card *ngFor="let mant of mantenimientos.controls; let i = index" 
+                      [formGroupName]="i" 
+                      class="mant-card">
+              
+              <div class="mant-header">
+                <mat-checkbox formControlName="activo">
+                  Activo
+                </mat-checkbox>
+                <button mat-icon-button color="warn" 
+                        type="button"
+                        (click)="removeMantenimiento(i)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Tipo</mat-label>
+                <mat-select formControlName="tipo" (selectionChange)="onTipoChange(i)">
+                  <mat-option value="por_horas">Por Horas</mat-option>
+                  <mat-option value="semanal">Semanal</mat-option>
+                  <mat-option value="mensual">Mensual</mat-option>
+                  <mat-option value="anual">Anual</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- CAMPOS ESPECÍFICOS POR HORAS -->
+              <div *ngIf="mant.get('tipo')?.value === 'por_horas'" class="tipo-fields">
+                <mat-form-field appearance="fill">
+                  <mat-label>Intervalo Horas</mat-label>
+                  <input matInput type="number" formControlName="horasIntervalo" 
+                         placeholder="500">
+                  <mat-hint>Cada X horas</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Últimas Horas Mantenimiento</mat-label>
+                  <input matInput type="number" formControlName="ultimasHorasMantenimiento" 
+                         placeholder="0">
+                  <mat-hint>Horas en último mantenimiento</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <!-- CAMPOS ESPECÍFICOS SEMANAL -->
+              <div *ngIf="mant.get('tipo')?.value === 'semanal'" class="tipo-fields">
+                <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Día de la Semana</mat-label>
+                  <mat-select formControlName="diaSemana">
+                    <mat-option [value]="1">Lunes</mat-option>
+                    <mat-option [value]="2">Martes</mat-option>
+                    <mat-option [value]="3">Miércoles</mat-option>
+                    <mat-option [value]="4">Jueves</mat-option>
+                    <mat-option [value]="5">Viernes</mat-option>
+                    <mat-option [value]="6">Sábado</mat-option>
+                    <mat-option [value]="0">Domingo</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- CAMPOS ESPECÍFICOS MENSUAL -->
+              <div *ngIf="mant.get('tipo')?.value === 'mensual'" class="tipo-fields">
+                <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Día del Mes</mat-label>
+                  <input matInput type="number" formControlName="diaMes" 
+                         min="1" max="31" placeholder="15">
+                  <mat-hint>Día 1-31</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <!-- CAMPOS ESPECÍFICOS ANUAL -->
+              <div *ngIf="mant.get('tipo')?.value === 'anual'" class="tipo-fields">
+                <mat-form-field appearance="fill">
+                  <mat-label>Mes</mat-label>
+                  <mat-select formControlName="mes">
+                    <mat-option [value]="1">Enero</mat-option>
+                    <mat-option [value]="2">Febrero</mat-option>
+                    <mat-option [value]="3">Marzo</mat-option>
+                    <mat-option [value]="4">Abril</mat-option>
+                    <mat-option [value]="5">Mayo</mat-option>
+                    <mat-option [value]="6">Junio</mat-option>
+                    <mat-option [value]="7">Julio</mat-option>
+                    <mat-option [value]="8">Agosto</mat-option>
+                    <mat-option [value]="9">Septiembre</mat-option>
+                    <mat-option [value]="10">Octubre</mat-option>
+                    <mat-option [value]="11">Noviembre</mat-option>
+                    <mat-option [value]="12">Diciembre</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                  <mat-label>Día del Mes</mat-label>
+                  <input matInput type="number" formControlName="diaMes" 
+                         min="1" max="31" placeholder="1">
+                </mat-form-field>
+              </div>
+
+              <!-- Placeholder checklist (próximo paso) -->
+              <mat-form-field appearance="fill" class="full-width">
+                <mat-label>Checklist Asociado (Opcional)</mat-label>
+                <mat-select formControlName="checklistId">
+                  <mat-option [value]="null">Sin checklist</mat-option>
+                  <mat-option value="checklist-1">Checklist Preventivo Básico</mat-option>
+                  <mat-option value="checklist-2">Checklist Inspección Visual</mat-option>
+                </mat-select>
+                <mat-hint>Se implementará en siguiente paso</mat-hint>
+              </mat-form-field>
+
+            </mat-card>
+          </div>
+
+          <p *ngIf="mantenimientos.length === 0" class="no-mantenimientos">
+            No hay tipos de mantenimiento configurados. Añade al menos uno.
+          </p>
+        </div>
+      </mat-expansion-panel>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Cancelar</button>
+    <button mat-raised-button color="primary" 
+            [disabled]="form.invalid" 
+            (click)="save()">
+      {{ data.mode === 'create' ? 'Crear' : 'Guardar' }}
+    </button>
+  </mat-dialog-actions>
+</div>
