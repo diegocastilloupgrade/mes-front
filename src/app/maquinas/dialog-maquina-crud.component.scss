@@ -1,0 +1,102 @@
+mat-dialog-content {
+  min-width: 650px;
+  max-width: 800px;
+  max-height: 75vh;
+  overflow-y: auto;
+  padding: 0 !important;
+}
+
+mat-expansion-panel {
+  margin-bottom: 16px;
+}
+
+mat-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.warning {
+  color: var(--mat-sys-error);
+  font-weight: 500;
+  margin-top: 16px;
+}
+
+.mantenimientos-container {
+  padding: 16px;
+}
+
+.info-text {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+.add-mant-btn {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.mantenimientos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mant-card {
+  padding: 16px;
+  background: var(--mat-sys-surface-variant);
+}
+
+.mant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tipo-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.full-width {
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+.no-mantenimientos {
+  text-align: center;
+  padding: 2rem;
+  color: var(--mat-sys-on-surface-variant);
+  font-style: italic;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  mat-dialog-content {
+    min-width: auto;
+    width: 95vw;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tipo-fields {
+    grid-template-columns: 1fr;
+  }
+}
